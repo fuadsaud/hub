@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'hub/version' unless defined?(Hub::VERSION)
 require 'hub/args'
 require 'hub/ssh_config'

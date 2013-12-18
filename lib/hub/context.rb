@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'shellwords'
 require 'forwardable'
 require 'uri'
@@ -17,9 +19,16 @@ module Hub
   module Context
     extend Forwardable
 
-    NULL = defined?(File::NULL) ? File::NULL : File.exist?('/dev/null') ? '/dev/null' : 'NUL'
+    NULL =
+      if defined? File::NULL
+        File::NULL
+      elsif File.exist? '/dev/null'
+        '/dev/null'
+      else
+        'nul'
+      end
 
-    Error = Class.new(RuntimeError)
+    Error      = Class.new(RuntimeError)
     FatalError = Class.new(Error)
 
     private
@@ -29,6 +38,7 @@ module Hub
     end
 
     include GitReaderMethods
+
     private :git_config, :git_command
 
     def local_repo(fatal = true)
@@ -36,7 +46,7 @@ module Hub
         if is_repo?
           LocalRepo.new git_reader, current_dir
         elsif fatal
-          raise FatalError, "Not a git repository"
+          fail FatalError, 'Not a git repository'
         end
     end
 
@@ -62,16 +72,16 @@ module Hub
     ## helper methods for local repo, GH projects
 
     def github_project(name, owner = nil)
-      if owner and owner.index('/')
+      if owner && owner.index('/')
         owner, name = owner.split('/', 2)
-      elsif name and name.index('/')
+      elsif name && name.index('/')
         owner, name = name.split('/', 2)
       else
         name ||= repo_name
         owner ||= github_user
       end
 
-      if local_repo(false) and main_project = local_repo.main_project
+      if local_repo(false) && (main_project = local_repo.main_project)
         project = main_project.dup
         project.owner = owner
         project.name = name
@@ -83,7 +93,7 @@ module Hub
 
     def git_url(owner = nil, name = nil, options = {})
       project = github_project(name, owner)
-      project.git_url({:https => https_protocol?}.update(options))
+      project.git_url({ https: https_protocol? }.update(options))
     end
 
     def resolve_github_url(url)
@@ -96,7 +106,7 @@ module Hub
     end
 
     def https_protocol?
-      git_config('hub.protocol') == 'https' or http_clone?
+      git_config('hub.protocol') == 'https' || http_clone?
     end
 
     def git_alias_for(name)
@@ -104,7 +114,8 @@ module Hub
     end
 
     def rev_list(a, b)
-      git_command("rev-list --cherry-pick --right-only --no-merges #{a}...#{b}")
+      git_command(
+        "rev-list --cherry-pick --right-only --no-merges #{a}...#{b}")
     end
 
     PWD = Dir.pwd
@@ -122,14 +133,26 @@ module Hub
     end
 
     def git_editor
-      # possible: ~/bin/vi, $SOME_ENVIRONMENT_VARIABLE, "C:\Program Files\Vim\gvim.exe" --nofork
+      # Possible:
+      # - ~/bin/vi,
+      # - $SOME_ENVIRONMENT_VARIABLE,
+      # - "C:\Program Files\Vim\gvim.exe" --nofork
+
       editor = git_command 'var GIT_EDITOR'
+
       editor.gsub!(/\$(\w+|\{\w+\})/) { ENV[$1.tr('{}', '')] }
+
       editor = ENV[$1] if editor =~ /^\$(\w+)$/
-      editor = File.expand_path editor if (editor =~ /^[~.]/ or editor.index('/')) and editor !~ /["']/
+
+      if (editor =~ /^[~.]/ or editor.index('/')) and editor !~ /["']/
+        editor = File.expand_path editor 
+      end
+
       # avoid shellsplitting "C:\Program Files"
-      if File.exist? editor then [editor]
-      else editor.shellsplit
+      if File.exist? editor
+        [editor]
+      else
+        editor.shellsplit
       end
     end
 
