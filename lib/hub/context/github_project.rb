@@ -16,7 +16,10 @@ module Hub
 
         self.name = self.name.tr(' ', '-')
         self.host ||= (local_repo || LocalRepo).default_host
-        self.host = host.sub(/^ssh\./i, '') if 'ssh.github.com' == host.downcase
+
+        if self.host.downcase == 'ssh.github.com'
+          self.host = self.host.sub(/^ssh\./i, '')
+        end
       end
 
       def private?
@@ -44,22 +47,34 @@ module Hub
 
       def web_url(path = nil)
         project_name = name_with_owner
+
         if project_name.sub!(/\.wiki$/, '')
-          unless '/wiki' == path
-            path = if path =~ %r{^/commits/} then '/_history'
-                   else path.to_s.sub(/\w+/, '_\0')
-                   end
-            path = '/wiki' + path
+          unless path == '/wiki'
+            path =
+              if path =~ %r(^/commits/)
+                '/_history'
+              else
+                path.to_s.sub(/\w+/, '_\0')
+              end
+
+            path = "/wiki#{ path }"
           end
         end
-        "https://#{host}/" + project_name + path.to_s
+
+        "https://#{host}/#{ project_name }#{ path.to_s }"
       end
 
       def git_url(options = {})
-        if options[:https] then "https://#{host}/"
-        elsif options[:private] or private? then "git@#{host}:"
-        else "git://#{host}/"
-        end + name_with_owner + '.git'
+        scheme =
+          if options[:https]
+            "https://#{host}/"
+          elsif options[:private] || private?
+            "git@#{host}:"
+          else
+            "git://#{host}/"
+          end
+
+        "#{ scheme }#{ name_with_owner }.git"
       end
     end
   end
