@@ -1,3 +1,5 @@
+require 'English'
+
 module Hub
   module Context
     class GitReader
@@ -5,11 +7,13 @@ module Hub
 
       def initialize(executable = nil, &read_proc)
         @executable = executable || 'git'
+
         # caches output when shelling out to git
-        read_proc ||= lambda { |cache, cmd|
+        read_proc ||= lambda do |cache, cmd|
           result = %x{#{command_to_string(cmd)} 2>#{NULL}}.chomp
-          cache[cmd] = $?.success? && !result.empty? ? result : nil
-        }
+          cache[cmd] = $CHILD_STATUS.success? && !result.empty? ? result : nil
+        end
+
         @cache = Hash.new(&read_proc)
       end
 
@@ -48,7 +52,12 @@ module Hub
 
       def command_to_string(cmd)
         full_cmd = to_exec(cmd)
-        full_cmd.respond_to?(:shelljoin) ? full_cmd.shelljoin : full_cmd.join(' ')
+
+        if full_cmd.respond_to?(:shelljoin)
+          full_cmd.shelljoin
+        else
+          full_cmd.join(' ')
+        end
       end
     end
   end

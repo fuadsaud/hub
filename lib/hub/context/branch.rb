@@ -25,7 +25,7 @@ module Hub
       end
 
       def remote_name
-        name =~ %r{^refs/remotes/([^/]+)} and $1 or
+        (name =~ %r(^refs/remotes/([^/]+)) && $1) or
           raise Error, "can't get remote name from #{name.inspect}"
       end
     end
