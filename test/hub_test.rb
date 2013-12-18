@@ -141,7 +141,7 @@ class HubTest < Test::Unit::TestCase
 
   def test_am_pull_request
     with_tmpdir('/tmp/') do
-      assert_commands "curl -#LA 'hub #{Hub::Version}' https://github.com/defunkt/hub/pull/55.patch -o /tmp/55.patch",
+      assert_commands "curl -#LA 'hub #{Hub::VERSION}' https://github.com/defunkt/hub/pull/55.patch -o /tmp/55.patch",
                       "git am --signoff /tmp/55.patch -p2",
                       "am --signoff https://github.com/defunkt/hub/pull/55#comment_123 -p2"
 
@@ -161,7 +161,7 @@ class HubTest < Test::Unit::TestCase
     with_tmpdir('/tmp/') do
       url = 'https://github.com/davidbalbert/hub/commit/fdb9921'
 
-      assert_commands "curl -#LA 'hub #{Hub::Version}' #{url}.patch -o /tmp/fdb9921.patch",
+      assert_commands "curl -#LA 'hub #{Hub::VERSION}' #{url}.patch -o /tmp/fdb9921.patch",
                       "git am --signoff /tmp/fdb9921.patch -p2",
                       "am --signoff #{url} -p2"
     end
@@ -171,7 +171,7 @@ class HubTest < Test::Unit::TestCase
     with_tmpdir('/tmp/') do
       url = 'https://gist.github.com/8da7fb575debd88c54cf'
 
-      assert_commands "curl -#LA 'hub #{Hub::Version}' #{url}.txt -o /tmp/gist-8da7fb575debd88c54cf.txt",
+      assert_commands "curl -#LA 'hub #{Hub::VERSION}' #{url}.txt -o /tmp/gist-8da7fb575debd88c54cf.txt",
                       "git am --signoff /tmp/gist-8da7fb575debd88c54cf.txt -p2",
                       "am --signoff #{url} -p2"
     end
@@ -183,7 +183,7 @@ class HubTest < Test::Unit::TestCase
 
   def test_apply_pull_request
     with_tmpdir('/tmp/') do
-      assert_commands "curl -#LA 'hub #{Hub::Version}' https://github.com/defunkt/hub/pull/55.patch -o /tmp/55.patch",
+      assert_commands "curl -#LA 'hub #{Hub::VERSION}' https://github.com/defunkt/hub/pull/55.patch -o /tmp/55.patch",
                       "git apply /tmp/55.patch -p2",
                       "apply https://github.com/defunkt/hub/pull/55 -p2"
 
@@ -196,7 +196,7 @@ class HubTest < Test::Unit::TestCase
     with_tmpdir('/tmp/') do
       url = 'https://github.com/davidbalbert/hub/commit/fdb9921'
 
-      assert_commands "curl -#LA 'hub #{Hub::Version}' #{url}.patch -o /tmp/fdb9921.patch",
+      assert_commands "curl -#LA 'hub #{Hub::VERSION}' #{url}.patch -o /tmp/fdb9921.patch",
                       "git apply /tmp/fdb9921.patch -p2",
                       "apply #{url} -p2"
     end
@@ -206,7 +206,7 @@ class HubTest < Test::Unit::TestCase
     with_tmpdir('/tmp/') do
       url = 'https://gist.github.com/8da7fb575debd88c54cf'
 
-      assert_commands "curl -#LA 'hub #{Hub::Version}' #{url}.txt -o /tmp/gist-8da7fb575debd88c54cf.txt",
+      assert_commands "curl -#LA 'hub #{Hub::VERSION}' #{url}.txt -o /tmp/gist-8da7fb575debd88c54cf.txt",
                       "git apply /tmp/gist-8da7fb575debd88c54cf.txt -p2",
                       "apply #{url} -p2"
     end
@@ -296,7 +296,7 @@ class HubTest < Test::Unit::TestCase
   def test_version
     out = hub('--version')
     assert_includes "git version 1.7.0.4", out
-    assert_includes "hub version #{Hub::Version}", out
+    assert_includes "hub version #{Hub::VERSION}", out
   end
 
   def test_exec_path

@@ -497,7 +497,7 @@ module Hub
         url += ext unless File.extname(url) == ext
         patch_file = File.join(tmp_dir, "#{gist ? 'gist-' : ''}#{File.basename(url)}")
         # TODO: remove dependency on curl
-        args.before 'curl', ['-#LA', "hub #{Hub::Version}", url, '-o', patch_file]
+        args.before 'curl', ['-#LA', "hub #{Hub::VERSION}", url, '-o', patch_file]
         args[idx] = patch_file
       end
     end
@@ -769,7 +769,7 @@ module Hub
     # > git version
     # (print hub version)
     def version(args)
-      args.after 'echo', ['hub version', Version]
+      args.after 'echo', ['hub version', VERSION]
     end
     alias_method "--version", :version
 
